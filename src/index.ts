@@ -1,22 +1,20 @@
-import fs from "fs-extra";
-const { copy } = fs;
-import buildPosts from "./build-posts";
+import { copy, emptyDir } from "fs-extra";
+import buildPosts from "./buildPosts";
+import buildPages from "./buildPages";
 
-async function process() {
-  console.time("Moving static files");
+async function moveFiles() {
   try {
-    await copy("./public", "./dist", { overwrite: true });
+    await copy("./public", "./dist");
   } catch (error) {
     console.error(error);
   }
-  console.timeEnd("Moving static files");
-  console.time("Building posts");
-  try {
-    await buildPosts();
-  } catch (error) {
-    console.error(error);
-  }
-  console.timeEnd("Building posts");
 }
 
-process();
+async function init() {
+  console.time("Total build time");
+  await emptyDir("./dist");
+  await Promise.all([moveFiles(), buildPosts(), buildPages()]);
+  console.timeEnd("Total build time");
+}
+
+init();
