@@ -11,6 +11,6 @@
   ],
   "scripts": {
     "test": "npm run test -ws --if-present",
-    "release": "npm -w brut publish"
+    "release": "npm -w brut run build && npm -w brut publish"
   }
 }
