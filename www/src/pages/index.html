@@ -1,0 +1,49 @@
+<h1>Welcome to Brut</h1>
+<p>Brut is a brutalist static site generator.</p>
+<p>It shares some of the principles behind brutalist architecture:</p>
+<ul>
+  <li>
+    <strong>Raw</strong>: embrace raw materials—concrete for buildings, html and
+    js for the web
+  </li>
+  <li><strong>Functional</strong>: don't do any more than necessary</li>
+  <li>
+    <strong>Dependable</strong>: focus on stability, move slow and don't break
+    things
+  </li>
+</ul>
+<p>
+  It is designed to help build static websites out of a collection of raw js (or
+  ts), html, and markdown files (plus static assets). Nothing more, nothing
+  less.
+</p>
+<p>
+  It has <span id="stars"></span> stars on
+  <a href="https://github.com/robinmetral/brut" title="Link to the repo"
+    >GitHub</a
+  >
+  and was last updated on <span id="updated"></span>.
+</p>
+<script type="module">
+  async function getRepo() {
+    try {
+      const res = await fetch(`https://api.github.com/repos/robinmetral/brut`);
+      const data = await res.json();
+      return { stars: data.stargazers_count, updated: data.updated_at };
+    } catch (error) {
+      return null;
+    }
+  }
+  async function init() {
+    const data = await getRepo();
+    if (data?.stars) {
+      const starsElement = document.getElementById("stars");
+      starsElement.innerText = data.stars;
+    }
+    if (data?.updated) {
+      const updatedElement = document.getElementById("updated");
+      updatedElement.innerText = new Date(data.updated).toLocaleDateString();
+    }
+  }
+  init();
+</script>

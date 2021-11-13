@@ -1,0 +1,47 @@
+html {
+  --bg: white;
+  --text: black;
+  --primary: blue;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    --bg: black;
+    --text: white;
+    --primary: lightskyblue;
+  }
+}
+
+body {
+  font-family: "Nelvetica Neue", Helvetica, sans-serif;
+  font-size: 18px;
+  color: var(--text);
+  background-color: var(--bg);
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 48px 0;
+}
+
+a {
+  color: var(--primary);
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:focus {
+  text-decoration: none;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: currentColor 0px 0px 0px 2px;
+  border-radius: 0.125rem;
+}

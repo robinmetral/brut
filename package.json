@@ -1,38 +1,12 @@
 {
   "name": "brut",
-  "version": "0.0.2",
-  "private": false,
+  "private": true,
   "license": "MIT",
   "repository": {
     "url": "https://github.com/robinmetral/brut"
   },
-  "type": "module",
-  "main": "dist/index.js",
-  "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc"
-  },
-  "files": [
-    "dist"
-  ],
-  "dependencies": {
-    "fs-extra": "^10.0.0",
-    "html-minifier-terser": "^6.0.2",
-    "js-yaml": "^4.1.0",
-    "mustache": "^4.2.0",
-    "rehype-stringify": "^9.0.2",
-    "remark-gfm": "^3.0.0",
-    "remark-parse": "^10.0.0",
-    "remark-rehype": "^10.0.0",
-    "unified": "^10.1.0"
-  },
-  "devDependencies": {
-    "@tsconfig/node14": "^1.0.1",
-    "@types/fs-extra": "^9.0.13",
-    "@types/html-minifier-terser": "^6.0.0",
-    "@types/js-yaml": "^4.0.4",
-    "@types/mustache": "^4.1.2",
-    "@types/node": "^16.11.2",
-    "typescript": "^4.4.4"
-  }
+  "workspaces": [
+    "brut",
+    "www"
+  ]
 }
