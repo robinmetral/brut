@@ -17,7 +17,7 @@ async function buildPage(file: string, fileName: string): Promise<string> {
   const hasScript = await pathExists(scriptPath);
   if (hasScript) {
     const script = await import(scriptPath);
-    return script.buildPage(file);
+    return file;
   } else {
     // if there's no build script we return the raw html
     return file;
