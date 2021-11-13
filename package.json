@@ -8,5 +8,8 @@
   "workspaces": [
     "brut",
     "www"
-  ]
+  ],
+  "scripts": {
+    "test": "npm run test -ws --if-present"
+  }
 }
