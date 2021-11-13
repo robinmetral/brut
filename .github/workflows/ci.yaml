@@ -22,7 +22,7 @@ jobs:
         run: npm run build -ws
 
       - name: Set up test env
-        run: npx playwright install
+        run: npx playwright install-deps
 
       - name: Test
         run: npm run test
