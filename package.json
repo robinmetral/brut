@@ -10,6 +10,7 @@
     "www"
   ],
   "scripts": {
-    "test": "npm run test -ws --if-present"
+    "test": "npm run test -ws --if-present",
+    "release": "npm -w brut publish"
   }
 }
