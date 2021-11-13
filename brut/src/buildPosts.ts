@@ -1,4 +1,4 @@
-import { ensureDir } from "fs-extra";
+import { ensureDir, pathExists } from "fs-extra";
 import { readdir, readFile, writeFile } from "fs/promises"; // can't import from fs-extra, not esm
 import { unified } from "unified";
 import remarkParse from "remark-parse";
@@ -83,6 +83,10 @@ function buildDocument(
 }
 
 export default async function buildPosts() {
+  const hasPosts = await pathExists(POSTS_DIR);
+  if (!hasPosts) {
+    return;
+  }
   try {
     const files = await readdir(POSTS_DIR);
     const template = await readFile(
@@ -90,16 +94,18 @@ export default async function buildPosts() {
       "utf-8"
     );
     await Promise.all(
-      files.map(async function (fileName) {
-        const file = await readFile(`${POSTS_DIR}/${fileName}`, "utf-8");
-        const { frontmatter, rest } = extractFrontmatter(file);
-        const content = await processMarkdown(rest);
-        const document = buildDocument(template, frontmatter, content);
-        const minifiedDocument = await minify(document);
-        const outDir = `${OUT_DIR}/${fileName.replace(".md", "/")}`;
-        await ensureDir(outDir);
-        await writeFile(`${outDir}/index.html`, minifiedDocument); // pretty URLs
-      })
+      files
+        .filter((file) => file.endsWith(".md"))
+        .map(async function (fileName) {
+          const file = await readFile(`${POSTS_DIR}/${fileName}`, "utf-8");
+          const { frontmatter, rest } = extractFrontmatter(file);
+          const content = await processMarkdown(rest);
+          const document = buildDocument(template, frontmatter, content);
+          const minifiedDocument = await minify(document);
+          const outDir = `${OUT_DIR}/${fileName.replace(".md", "/")}`;
+          await ensureDir(outDir);
+          await writeFile(`${outDir}/index.html`, minifiedDocument); // pretty URLs
+        })
     );
   } catch (error) {
     console.error(error);
