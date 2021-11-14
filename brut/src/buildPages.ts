@@ -12,11 +12,14 @@ const OUT_DIR = "./dist";
  * Get the page's build script and run it on the html.
  */
 async function buildPage(file: string, fileName: string): Promise<string> {
-  console.log(cwd());
-  console.log(resolve("."));
+  console.log(fileName, cwd());
+  console.log(fileName, resolve("."));
   const scriptPath = `${cwd()}/src/pages/${fileName.replace(".html", ".js")}`;
+  console.log(fileName, scriptPath);
   const hasScript = await pathExists(scriptPath);
+  console.log(fileName, hasScript);
   if (hasScript) {
+    console.log(fileName, "Importing script");
     const script = await import(scriptPath);
     return script.buildPage(file);
   } else {
