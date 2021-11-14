@@ -16,6 +16,7 @@ async function init() {
   await emptyDir("./dist");
   await Promise.all([moveFiles(), buildPosts(), buildPages()]);
   console.timeEnd("Total build time");
+  process.exit(0);
 }
 
 init();
