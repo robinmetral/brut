@@ -38,10 +38,7 @@ function buildDocument(template: string, content: string) {
 export default async function buildPages() {
   try {
     const files = await readdir(PAGES_DIR);
-    const template = await readFile(
-      `${process.cwd()}/src/templates/default.html`,
-      "utf-8"
-    );
+    const template = await readFile(`./src/templates/default.html`, "utf-8");
     await Promise.all(
       files
         .filter((file) => file.endsWith(".html"))

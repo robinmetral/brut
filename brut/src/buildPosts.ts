@@ -89,10 +89,7 @@ export default async function buildPosts() {
   }
   try {
     const files = await readdir(POSTS_DIR);
-    const template = await readFile(
-      `${process.cwd()}/src/templates/default.html`,
-      "utf-8"
-    );
+    const template = await readFile(`./src/templates/default.html`, "utf-8");
     await Promise.all(
       files
         .filter((file) => file.endsWith(".md"))
