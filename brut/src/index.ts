@@ -19,3 +19,7 @@ async function init() {
 }
 
 init();
+
+// respect termination signals
+process.on("SIGTERM", () => process.exit(0));
+process.on("SIGINT", () => process.exit(0));
