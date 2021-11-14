@@ -1,6 +1,6 @@
 {
   "name": "brut",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "private": false,
   "license": "MIT",
   "repository": {
@@ -18,9 +18,9 @@
   },
   "files": [
     "dist",
-    "bin"
+    "entry.sh"
   ],
-  "bin": "./bin/entry.sh",
+  "bin": "./entry.sh",
   "dependencies": {
     "fs-extra": "^10.0.0",
     "html-minifier-terser": "^6.0.2",
