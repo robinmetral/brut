@@ -1,4 +1,4 @@
-#!/usr/bin/env node --experimental-specifier-resolution=node
+#!/usr/bin/env node
 import { copy, emptyDir } from "fs-extra";
 import buildPosts from "./buildPosts";
 import buildPages from "./buildPages";

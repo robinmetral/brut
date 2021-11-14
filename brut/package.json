@@ -1,6 +1,6 @@
 {
   "name": "brut",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "private": false,
   "license": "MIT",
   "repository": {
@@ -17,9 +17,10 @@
     "build": "tsc"
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
-  "bin": "./dist/index.js",
+  "bin": "./bin/entry.sh",
   "dependencies": {
     "fs-extra": "^10.0.0",
     "html-minifier-terser": "^6.0.2",
