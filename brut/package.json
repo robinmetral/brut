@@ -1,6 +1,6 @@
 {
   "name": "brut",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "private": false,
   "license": "MIT",
   "repository": {
@@ -11,7 +11,6 @@
     "email": "robin@metral.ch"
   },
   "type": "module",
-  "main": "dist/index.js",
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc"
@@ -19,6 +18,7 @@
   "files": [
     "dist"
   ],
+  "bin": "dist/index.js",
   "dependencies": {
     "fs-extra": "^10.0.0",
     "html-minifier-terser": "^6.0.2",

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "serve dist",
-    "build": "tsc && node --experimental-specifier-resolution=node ../node_modules/brut",
+    "build": "tsc && brut",
     "test": "start-server-and-test start http://localhost:3000 'npx playwright test --browser=all'"
   },
   "devDependencies": {
