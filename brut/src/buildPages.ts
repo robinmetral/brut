@@ -1,8 +1,9 @@
-import { readdir, writeFile, readFile } from "fs/promises";
+import fs from "fs-extra";
 import { cwd } from "process";
-import { pathExists } from "fs-extra";
 import mustache from "mustache";
 import { minify } from "./utils";
+
+const { pathExists, readdir, writeFile, readFile } = fs;
 
 const PAGES_DIR = "./src/pages";
 const OUT_DIR = "./dist";

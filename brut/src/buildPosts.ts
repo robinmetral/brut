@@ -1,5 +1,4 @@
-import { ensureDir, pathExists } from "fs-extra";
-import { readdir, readFile, writeFile } from "fs/promises"; // can't import from fs-extra, not esm
+import fs from "fs-extra";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
@@ -8,6 +7,8 @@ import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
 import { load } from "js-yaml";
 import { minify } from "./utils";
+
+const { ensureDir, pathExists, readdir, readFile, writeFile } = fs;
 
 const POSTS_DIR = "./src/posts";
 const OUT_DIR = "./dist/posts";
