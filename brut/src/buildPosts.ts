@@ -1,4 +1,5 @@
 import fs from "fs-extra";
+import { cwd } from "process";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
@@ -10,8 +11,8 @@ import { minify } from "./utils";
 
 const { ensureDir, pathExists, readdir, readFile, writeFile } = fs;
 
-const POSTS_DIR = "./src/posts";
-const OUT_DIR = "./dist/posts";
+const POSTS_DIR = `${cwd()}/src/posts`;
+const OUT_DIR = `${cwd()}/dist/posts`;
 
 type Frontmatter = { [key: string]: string };
 
@@ -90,7 +91,10 @@ export default async function buildPosts() {
   }
   try {
     const files = await readdir(POSTS_DIR);
-    const template = await readFile(`./src/templates/default.html`, "utf-8");
+    const template = await readFile(
+      `${cwd()}/src/templates/default.html`,
+      "utf-8"
+    );
     await Promise.all(
       files
         .filter((file) => file.endsWith(".md"))

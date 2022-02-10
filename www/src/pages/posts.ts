@@ -1,7 +1,8 @@
+import { cwd } from "process";
 import { readdir, readFile } from "fs/promises";
 import { load } from "js-yaml";
 
-const POSTS_DIR = "./src/posts";
+const POSTS_DIR = `${cwd()}/src/posts`;
 
 type Frontmatter = { [key: string]: string };
 
