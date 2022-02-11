@@ -2,17 +2,14 @@ import fs from "fs-extra";
 import { cwd } from "process";
 import mustache from "mustache";
 import { minify } from "./utils";
+import type { Config } from ".";
 
 const { pathExists, readdir, writeFile, readFile } = fs;
-
-const PAGES_DIR = `${cwd()}/src/pages`;
-const OUT_DIR = `${cwd()}/dist`;
 
 /**
  * Get the page's build script and run it on the html.
  */
-async function buildPage(file: string, fileName: string): Promise<string> {
-  const scriptPath = `${PAGES_DIR}/${fileName.replace(".html", ".js")}`;
+async function buildPage(file: string, scriptPath: string): Promise<string> {
   const hasScript = await pathExists(scriptPath);
   if (hasScript) {
     const script = await import(scriptPath);
@@ -34,9 +31,9 @@ function buildDocument(template: string, content: string) {
   );
 }
 
-export default async function buildPages() {
+export default async function buildPages({ outDir, pagesDir }: Config) {
   try {
-    const files = await readdir(PAGES_DIR);
+    const files = await readdir(pagesDir);
     const template = await readFile(
       `${cwd()}/src/templates/default.html`,
       "utf-8"
@@ -45,11 +42,12 @@ export default async function buildPages() {
       files
         .filter((file) => file.endsWith(".html"))
         .map(async function (fileName) {
-          const file = await readFile(`${PAGES_DIR}/${fileName}`, "utf-8");
-          const content = await buildPage(file, fileName);
+          const file = await readFile(`${pagesDir}/${fileName}`, "utf-8");
+          const scriptPath = `${pagesDir}/${fileName.replace(".html", ".js")}`;
+          const content = await buildPage(file, scriptPath);
           const document = buildDocument(template, content);
           const minifiedDocument = await minify(document);
-          await writeFile(`${OUT_DIR}/${fileName}`, minifiedDocument);
+          await writeFile(`${outDir}/${fileName}`, minifiedDocument); // TODO nested pages
         })
     );
   } catch (error) {

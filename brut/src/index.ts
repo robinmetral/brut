@@ -1,23 +1,65 @@
-import { copy, emptyDir } from "fs-extra";
+import fs from "fs-extra";
 import { cwd } from "process";
-import buildPosts from "./buildPosts";
+import moveFiles from "./moveFiles";
 import buildPages from "./buildPages";
+import buildPosts from "./buildPosts";
 
-const OUT_DIR = `${cwd()}/dist`;
-const PUBLIC_DIR = `${cwd()}/public`;
+const { emptyDir } = fs;
 
-async function moveFiles() {
-  try {
-    await copy(PUBLIC_DIR, OUT_DIR);
-  } catch (error) {
-    console.error(error);
-  }
+type ConfigObject = {
+  /**
+   * The top-level directory containing markdown posts.
+   * Defaults to `/src/posts`.
+   */
+  postsDir?: string;
+  /**
+   * The top-level directory containing pages.
+   * Defaults to `/src/pages`.
+   */
+  pagesDir?: string;
+  /**
+   * The top-level directory containing static assets to copy to the root of
+   * the built site.
+   * Defaults to `/public`.
+   */
+  publicDir?: string;
+  /**
+   * The directory for the build output.
+   * Defaults to `/dist`.
+   */
+  outDir?: string;
+};
+
+export type Config = Required<ConfigObject>;
+
+async function getConfig() {
+  const { default: configObject } = await import(`${cwd()}/brut.config.js`);
+  const config: Config = {
+    postsDir: configObject.postsDir
+      ? `${cwd()}${configObject.postsDir}`
+      : `${cwd()}/src/posts`,
+    pagesDir: configObject.pagesDir
+      ? `${cwd()}${configObject.pagesDir}`
+      : `${cwd()}/src/pages`,
+    publicDir: configObject.publicDir
+      ? `${cwd()}${configObject.publicDir}`
+      : `${cwd()}/public`,
+    outDir: configObject.outDir
+      ? `${cwd()}${configObject.outDir}`
+      : `${cwd()}/dist`,
+  };
+  return config;
 }
 
 async function init() {
   console.time("Total build time");
-  await emptyDir(OUT_DIR);
-  await Promise.all([moveFiles(), buildPosts(), buildPages()]);
+  const config = await getConfig();
+  await emptyDir(config.outDir);
+  await Promise.all([
+    moveFiles(config),
+    buildPages(config),
+    buildPosts(config),
+  ]);
   console.timeEnd("Total build time");
 }
 

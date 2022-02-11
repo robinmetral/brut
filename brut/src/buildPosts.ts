@@ -8,11 +8,9 @@ import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
 import { load } from "js-yaml";
 import { minify } from "./utils";
+import type { Config } from ".";
 
 const { ensureDir, pathExists, readdir, readFile, writeFile } = fs;
-
-const POSTS_DIR = `${cwd()}/src/posts`;
-const OUT_DIR = `${cwd()}/dist/posts`;
 
 type Frontmatter = { [key: string]: string };
 
@@ -84,13 +82,13 @@ function buildDocument(
   );
 }
 
-export default async function buildPosts() {
-  const hasPosts = await pathExists(POSTS_DIR);
+export default async function buildPosts({ postsDir, outDir }: Config) {
+  const hasPosts = pathExists(postsDir);
   if (!hasPosts) {
     return;
   }
   try {
-    const files = await readdir(POSTS_DIR);
+    const files = await readdir(postsDir);
     const template = await readFile(
       `${cwd()}/src/templates/default.html`,
       "utf-8"
@@ -99,14 +97,14 @@ export default async function buildPosts() {
       files
         .filter((file) => file.endsWith(".md"))
         .map(async function (fileName) {
-          const file = await readFile(`${POSTS_DIR}/${fileName}`, "utf-8");
+          const file = await readFile(`${postsDir}/${fileName}`, "utf-8");
           const { frontmatter, rest } = extractFrontmatter(file);
           const content = await processMarkdown(rest);
           const document = buildDocument(template, frontmatter, content);
           const minifiedDocument = await minify(document);
-          const outDir = `${OUT_DIR}/${fileName.replace(".md", "/")}`;
-          await ensureDir(outDir);
-          await writeFile(`${outDir}/index.html`, minifiedDocument); // pretty URLs
+          const outPath = `${outDir}/posts/${fileName.replace(".md", "/")}`; // TODO change url based on posts dir name
+          await ensureDir(outPath);
+          await writeFile(`${outPath}/index.html`, minifiedDocument); // pretty URLs
         })
     );
   } catch (error) {
