@@ -58,7 +58,7 @@ async function init() {
   await Promise.all([
     moveFiles(config),
     buildPages(config),
-    buildPosts(config),
+    // buildPosts(config),
   ]);
   console.timeEnd("Total build time");
 }
