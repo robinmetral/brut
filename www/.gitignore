@@ -3,4 +3,4 @@ node_modules
 # built site
 dist
 # build scripts
-src/pages/*.js
+scripts/*.js

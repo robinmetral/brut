@@ -1,4 +1,4 @@
 export default {
   // overwrites the default `/src/posts`
-  postsDir: "/src/notes",
+  postsDir: "/pages/posts",
 };

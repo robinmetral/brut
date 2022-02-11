@@ -2,7 +2,7 @@ import { cwd } from "process";
 import { readdir, readFile } from "fs/promises";
 import { load } from "js-yaml";
 
-const POSTS_DIR = `${cwd()}/src/notes`;
+const POSTS_DIR = `${cwd()}/pages/notes`;
 
 type Frontmatter = { [key: string]: string };
 
