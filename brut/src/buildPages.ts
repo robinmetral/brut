@@ -91,13 +91,7 @@ async function buildPage(
   content: string,
   frontmatter: Frontmatter
 ): Promise<string> {
-  // 1. run build script
-  const hasScript = !!frontmatter.buildScript;
-  if (hasScript) {
-    const script = await import(cwd() + frontmatter.buildScript);
-    content = await script.buildPage(content);
-  }
-  // 2. inject into the template
+  // 1. inject into the template
   const hasTemplate = !!frontmatter.template;
   if (hasTemplate) {
     const template = await readFile(cwd() + frontmatter.template, "utf-8");
@@ -106,6 +100,12 @@ async function buildPage(
       frontmatter, // variables
       { content } // partials
     );
+  }
+  // 2. run build script
+  const hasScript = !!frontmatter.buildScript;
+  if (hasScript) {
+    const script = await import(cwd() + frontmatter.buildScript);
+    content = await script.buildPage(content);
   }
   // 3. minify and return
   return minify(content);
