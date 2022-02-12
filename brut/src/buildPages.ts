@@ -58,12 +58,12 @@ function processMarkdown(file: string): Promise<string> {
        * `remark-rehype` transforms the mdast into hast.
        * https://github.com/remarkjs/remark-rehype
        */
-      .use(remarkRehype)
+      .use(remarkRehype, { allowDangerousHtml: true })
       /**
        * `rehype-stringify` transforms the hast into HTML.
        * https://github.com/rehypejs/rehype/tree/main/packages/rehype-stringify
        */
-      .use(rehypeStringify)
+      .use(rehypeStringify, { allowDangerousHtml: true })
       .process(file)
       .then((vfile) => String(vfile))
   );
