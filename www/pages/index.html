@@ -1,3 +1,6 @@
+<!--
+template: /templates/default.html
+-->
 <h1>Welcome to Brut</h1>
 <p>Brut is a brutalist static site generator.</p>
 <p>It shares some of the principles behind brutalist architecture:</p>
@@ -29,7 +32,7 @@
     try {
       const res = await fetch(`https://api.github.com/repos/robinmetral/brut`);
       const data = await res.json();
-      return { stars: data.stargazers_count, updated: data.updated_at };
+      return { stars: data.stargazers_count, updated: data.pushed_at };
     } catch (error) {
       return null;
     }
