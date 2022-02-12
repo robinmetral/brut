@@ -105,7 +105,7 @@ async function buildPage(
   const hasScript = !!frontmatter.buildScript;
   if (hasScript) {
     const script = await import(cwd() + frontmatter.buildScript);
-    content = await script.buildPage(content);
+    content = await script.buildPage(content, frontmatter);
   }
   // 3. minify and return
   return minify(content);
