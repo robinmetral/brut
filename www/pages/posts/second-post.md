@@ -6,7 +6,7 @@ date: "2022-02-12"
 
 # Second Post
 
-This post is written in Markdown but contains embedded HTML:
+This post is written in Markdown but contains embedded HTML[^1]:
 
 <ul>
 <li>This</li>
@@ -21,3 +21,5 @@ This post is written in Markdown but contains embedded HTML:
 - A
 - Markdown
 - List
+
+[^1]: ...and footnotes!
