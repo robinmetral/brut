@@ -5,4 +5,4 @@ buildScript: /scripts/buildPostsList.js
 
 # Blog
 
-<ul id="posts" />
+- Posts go here

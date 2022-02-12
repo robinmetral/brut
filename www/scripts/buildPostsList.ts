@@ -2,7 +2,7 @@ import { cwd } from "process";
 import { readdir, readFile } from "fs/promises";
 import { load } from "js-yaml";
 
-const POSTS_DIR = `${cwd()}/pages/notes`;
+const POSTS_DIR = `${cwd()}/pages/posts`;
 
 type Frontmatter = { [key: string]: string };
 
@@ -44,10 +44,7 @@ export async function buildPage(html: string): Promise<string> {
           `<li><a href="${post.slug}">${post.date}: ${post.title}</a></li>`
       )
       .join("");
-    return html.replace(
-      '<ul id="posts" />',
-      `<ul id="posts">${postsHtml}</ul>`
-    );
+    return html.replace("<li>Posts go here</li>", postsHtml);
   } catch (error) {
     throw new Error(`Failed to build page: ${error}`);
   }
