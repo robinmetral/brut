@@ -1,6 +1,6 @@
 import fs from "fs-extra";
+import { resolve } from "path";
 import { cwd } from "process";
-import klaw from "klaw";
 import { load } from "js-yaml";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
@@ -11,7 +11,7 @@ import mustache from "mustache";
 import { minify as minifier } from "html-minifier-terser";
 import type { Config } from ".";
 
-const { writeFile, readFile, ensureDir } = fs;
+const { writeFile, readFile, readdir, ensureDir } = fs;
 
 type Frontmatter = { [key: string]: string };
 
@@ -111,38 +111,52 @@ async function buildPage(
   return minify(content);
 }
 
+async function getFiles(dir: string): Promise<string[]> {
+  const dirents = await readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(
+    dirents.map((dirent) => {
+      const res = resolve(dir, dirent.name);
+      return dirent.isDirectory() ? getFiles(res) : res;
+    })
+  );
+  return files.flat();
+}
+
 export default async function buildPages({
   outDir: outDirRoot,
   pagesDir,
 }: Config) {
   try {
-    for await (const { path } of klaw(pagesDir)) {
-      // only process markdown or html pages
-      if (path.endsWith(".md") || path.endsWith(".html")) {
-        // 1. extract frontmatter and content from file
-        const file = await readFile(path, "utf-8");
-        const { frontmatter, content } = extractFrontmatter(file);
-        // 2. parse markdown into HTML
-        let html: string = content;
-        if (path.endsWith(".md")) {
-          html = await processMarkdown(content);
+    const paths = await getFiles(pagesDir);
+    await Promise.all(
+      paths.map(async (path) => {
+        // only process markdown or html pages
+        if (path.endsWith(".md") || path.endsWith(".html")) {
+          // 1. extract frontmatter and content from file
+          const file = await readFile(path, "utf-8");
+          const { frontmatter, content } = extractFrontmatter(file);
+          // 2. parse markdown into HTML
+          let html: string = content;
+          if (path.endsWith(".md")) {
+            html = await processMarkdown(content);
+          }
+          // 3. build page
+          const result = await buildPage(html, frontmatter);
+          // 4. save result to out dir and handle pretty urls
+          let outDir: string = `${outDirRoot}${path.replace(pagesDir, "")}`;
+          const isIndexFile =
+            path.endsWith("/index.html") || path.endsWith("index.md");
+          if (isIndexFile) {
+            outDir = outDir.replace("/index.html", "").replace("/index.md", "");
+          } else {
+            outDir = outDir.replace(".md", "").replace(".html", "");
+          }
+          await ensureDir(outDir);
+          await writeFile(`${outDir}/index.html`, result);
         }
-        // 3. build page
-        const result = await buildPage(html, frontmatter);
-        // 4. save result to out dir and handle pretty urls
-        let outDir: string = `${outDirRoot}${path.replace(pagesDir, "")}`;
-        const isIndexFile =
-          path.endsWith("/index.html") || path.endsWith("index.md");
-        if (isIndexFile) {
-          outDir = outDir.replace("/index.html", "").replace("/index.md", "");
-        } else {
-          outDir = outDir.replace(".md", "").replace(".html", "");
-        }
-        await ensureDir(outDir);
-        await writeFile(`${outDir}/index.html`, result);
-      }
-    }
+      })
+    );
   } catch (error) {
-    console.error(error); // TODO error handling with klaw
+    console.error(error);
   }
 }
