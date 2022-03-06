@@ -13,7 +13,7 @@ html {
 }
 
 body {
-  font-family: "Nelvetica Neue", Helvetica, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
   font-size: 18px;
   color: var(--text);
   background-color: var(--bg);
