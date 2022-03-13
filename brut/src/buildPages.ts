@@ -111,7 +111,10 @@ async function buildPage(
   return minify(content);
 }
 
-async function getFiles(dir: string): Promise<string[]> {
+/**
+ * Walks a tree and returns a flat array of file paths.
+ */
+export async function getFiles(dir: string): Promise<string[]> {
   const dirents = await readdir(dir, { withFileTypes: true });
   const files = await Promise.all(
     dirents.map((dirent) => {
