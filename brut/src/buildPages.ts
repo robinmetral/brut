@@ -89,7 +89,8 @@ async function minify(html: string): Promise<string> {
  */
 async function buildPage(
   content: string,
-  frontmatter: Frontmatter
+  frontmatter: Frontmatter,
+  path: string
 ): Promise<string> {
   // 1. inject into the template
   const hasTemplate = !!frontmatter.template;
@@ -105,7 +106,7 @@ async function buildPage(
   const hasScript = !!frontmatter.buildScript;
   if (hasScript) {
     const script = await import(cwd() + frontmatter.buildScript);
-    content = await script.buildPage(content, frontmatter);
+    content = await script.buildPage(content, frontmatter, path);
   }
   // 3. minify and return
   return minify(content);
@@ -140,17 +141,18 @@ export default async function buildPages({
           if (path.endsWith(".md")) {
             html = await processMarkdown(content);
           }
-          // 3. build page
-          const result = await buildPage(html, frontmatter);
-          // 4. save result to out dir and handle pretty urls
-          let outDir: string = `${outDirRoot}${path.replace(pagesDir, "")}`;
+          // 3. pretty urls
           const isIndexFile =
             path.endsWith("/index.html") || path.endsWith("index.md");
+          let outDir = `${outDirRoot}${path.replace(pagesDir, "")}`;
           if (isIndexFile) {
             outDir = outDir.replace("/index.html", "").replace("/index.md", "");
           } else {
             outDir = outDir.replace(".md", "").replace(".html", "");
           }
+          // 4. build page and write to fs
+          const relPath = outDir.replace(outDirRoot, "");
+          const result = await buildPage(html, frontmatter, relPath);
           await ensureDir(outDir);
           await writeFile(`${outDir}/index.html`, result);
         }
