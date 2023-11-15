@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import { cwd } from "process";
 import moveFiles from "./moveFiles";
 import buildPages from "./buildPages";
+import processCss from "./processCss";
 
 const { emptyDir } = fs;
 
@@ -16,6 +17,12 @@ type ConfigObject = {
    * Defaults to `/public`.
    */
   publicDir?: string;
+  /**
+   * The top-level directory containing styles to process and copy to the
+   * `outDir`.
+   * Defaults to `/styles`.
+   */
+  stylesDir?: string;
   /**
    * The top-level directory for the build output.
    * Defaults to `/dist`.
@@ -34,6 +41,9 @@ async function getConfig() {
     publicDir: configObject.publicDir
       ? `${cwd()}${configObject.publicDir}`
       : `${cwd()}/public`,
+    stylesDir: configObject.stylesDir
+      ? `${cwd()}${configObject.stylesDir}`
+      : `${cwd()}/styles`,
     outDir: configObject.outDir
       ? `${cwd()}${configObject.outDir}`
       : `${cwd()}/dist`,
@@ -45,7 +55,11 @@ async function init() {
   console.time("Total build time");
   const config = await getConfig();
   await emptyDir(config.outDir);
-  await Promise.all([moveFiles(config), buildPages(config)]);
+  await Promise.all([
+    moveFiles(config),
+    buildPages(config),
+    processCss(config),
+  ]);
   console.timeEnd("Total build time");
 }
 
