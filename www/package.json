@@ -4,9 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "brut",
-    "start": "serve -l 3000 dist",
-    "test": "npx playwright test --browser=all",
-    "ci": "start-server-and-test http://localhost:3000"
+    "start": "npm run build && serve -l 3000 --no-request-logging dist",
+    "test": "start-server-and-test start http://localhost:3000 'npx playwright test --browser=all'"
   },
   "devDependencies": {
     "@playwright/test": "^1.46.0",

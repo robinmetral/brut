@@ -10,7 +10,7 @@
     "www"
   ],
   "scripts": {
-    "test": "npm -w www run ci",
+    "test": "npm -w www run test",
     "release": "npm -w brut publish"
   }
 }
