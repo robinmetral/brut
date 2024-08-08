@@ -8,10 +8,10 @@
     "test": "start-server-and-test start http://localhost:3000 'npx playwright test --browser=all'"
   },
   "devDependencies": {
-    "@playwright/test": "^1.16.3",
+    "@playwright/test": "^1.46.0",
     "brut": "*",
     "js-yaml": "^4.1.0",
-    "serve": "^13.0.2",
-    "start-server-and-test": "^1.14.0"
+    "serve": "^14.2.3",
+    "start-server-and-test": "^2.0.5"
   }
 }
