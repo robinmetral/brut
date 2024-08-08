@@ -1,9 +1,14 @@
+/** @typedef {import('.').Config} Config */
+
 import fs from "fs-extra";
-import type { Config } from ".";
 
 const { copy } = fs;
 
-async function moveFiles({ publicDir, outDir }: Config) {
+/**
+ * @param {Config} config
+ * @returns {Promise<void>}
+ */
+async function moveFiles({ publicDir, outDir }) {
   try {
     await copy(publicDir, outDir);
   } catch (error) {

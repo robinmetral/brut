@@ -1,3 +1,5 @@
+/** @typedef {import('.').Config} Config */
+
 import fs from "fs-extra";
 import { resolve } from "path";
 import { cwd } from "process";
@@ -9,26 +11,27 @@ import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
 import { minify as minifier } from "html-minifier-terser";
-import type { Config } from ".";
 
 const { writeFile, readFile, readdir, ensureDir } = fs;
 
-type Frontmatter = { [key: string]: string };
+/** @typedef {Object<string, string>} Frontmatter */
 
 /**
  * Extracts frontmatter with `---` or `<!-- -->` delimiters from a string.
  * Inspired by vfile-matter: https://github.com/vfile/vfile-matter/
+ * @param {string} file
+ * @returns {{
+ *   frontmatter: Frontmatter;
+ *   content: string;
+ * }}
  */
-function extractFrontmatter(file: string): {
-  frontmatter: Frontmatter;
-  content: string;
-} {
+function extractFrontmatter(file) {
   const match =
     /^(?:---|<!--)(?:\r?\n|\r)(?:([\s\S]*?)(?:\r?\n|\r))?(?:---|-->)(?:\r?\n|\r|$)/.exec(
       file
     );
   if (match) {
-    const frontmatter = load(match[1]) as Frontmatter;
+    const frontmatter = /** @type {Frontmatter} */ (load(match[1]));
     const content = file.slice(match[0].length);
     return { frontmatter, content };
   } else {
@@ -39,8 +42,10 @@ function extractFrontmatter(file: string): {
 /**
  * Parse the file into an AST, transform with unified plugins,
  * and convert back into html.
+ * @param {string} file
+ * @returns {Promise<string>}
  */
-function processMarkdown(file: string): Promise<string> {
+function processMarkdown(file) {
   return (
     unified()
       /**
@@ -71,8 +76,10 @@ function processMarkdown(file: string): Promise<string> {
 
 /**
  * Minify an HTML string using html-minifier-terser.
+ * @param {string} html
+ * @returns {Promise<string>}
  */
-async function minify(html: string): Promise<string> {
+async function minify(html) {
   return minifier(html, {
     collapseWhitespace: true,
     removeComments: true,
@@ -86,12 +93,12 @@ async function minify(html: string): Promise<string> {
 
 /**
  * Get the page's build script and run it on the html.
+ * @param {string} content
+ * @param {Frontmatter} frontmatter
+ * @param {string} path
+ * @returns {Promise<string>}
  */
-async function buildPage(
-  content: string,
-  frontmatter: Frontmatter,
-  path: string
-): Promise<string> {
+async function buildPage(content, frontmatter, path) {
   // 1. inject into the template
   const hasTemplate = !!frontmatter.template;
   if (hasTemplate) {
@@ -112,7 +119,11 @@ async function buildPage(
   return minify(content);
 }
 
-async function getFiles(dir: string): Promise<string[]> {
+/**
+ * @param {string} dir
+ * @returns {Promise<string[]>}
+ */
+async function getFiles(dir) {
   const dirents = await readdir(dir, { withFileTypes: true });
   const files = await Promise.all(
     dirents.map((dirent) => {
@@ -123,10 +134,11 @@ async function getFiles(dir: string): Promise<string[]> {
   return files.flat();
 }
 
-export default async function buildPages({
-  outDir: outDirRoot,
-  pagesDir,
-}: Config) {
+/**
+ * @param {Config} config
+ * @returns {Promise<void>}
+ */
+export default async function buildPages({ outDir: outDirRoot, pagesDir }) {
   try {
     const paths = await getFiles(pagesDir);
     await Promise.all(
@@ -137,7 +149,7 @@ export default async function buildPages({
           const file = await readFile(path, "utf-8");
           const { frontmatter, content } = extractFrontmatter(file);
           // 2. parse markdown into HTML
-          let html: string = content;
+          let html = content;
           if (path.endsWith(".md")) {
             html = await processMarkdown(content);
           }
