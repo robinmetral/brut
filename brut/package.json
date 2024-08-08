@@ -11,12 +11,8 @@
     "email": "robin@metral.ch"
   },
   "type": "module",
-  "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc"
-  },
   "files": [
-    "dist"
+    "src"
   ],
   "bin": "entry.sh",
   "dependencies": {
@@ -30,17 +26,8 @@
     "remark-rehype": "^10.0.0",
     "unified": "^10.1.0"
   },
-  "devDependencies": {
-    "@tsconfig/node14": "^1.0.1",
-    "@types/fs-extra": "^9.0.13",
-    "@types/html-minifier-terser": "^6.0.0",
-    "@types/js-yaml": "^4.0.4",
-    "@types/mustache": "^4.1.2",
-    "@types/node": "^16.11.2",
-    "typescript": "^4.4.4"
-  },
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
