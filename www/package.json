@@ -3,18 +3,15 @@
   "private": "true",
   "type": "module",
   "scripts": {
-    "start": "serve dist",
-    "build": "tsc && brut",
-    "test": "start-server-and-test start http://localhost:3000 'PW_EXPERIMENTAL_TS_ESM=1 npx playwright test --browser=all'"
+    "build": "brut",
+    "start": "npm run build && serve -l 3000 --no-request-logging dist",
+    "test": "start-server-and-test start http://localhost:3000 'npx playwright test --browser=all'"
   },
   "devDependencies": {
-    "@playwright/test": "^1.16.3",
-    "@tsconfig/node14": "^1.0.1",
-    "@types/node": "^16.11.7",
+    "@playwright/test": "^1.46.0",
     "brut": "*",
     "js-yaml": "^4.1.0",
-    "serve": "^13.0.2",
-    "start-server-and-test": "^1.14.0",
-    "typescript": "^4.4.4"
+    "serve": "^14.2.3",
+    "start-server-and-test": "^2.0.5"
   }
 }

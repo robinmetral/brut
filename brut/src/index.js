@@ -5,29 +5,20 @@ import buildPages from "./buildPages";
 
 const { emptyDir } = fs;
 
-type ConfigObject = {
-  /**
-   * The top-level directory containing pages.
-   * Defaults to `/pages`.
-   */
-  pagesDir?: string;
-  /**
-   * The top-level directory containing static assets to copy to the `outDir`.
-   * Defaults to `/public`.
-   */
-  publicDir?: string;
-  /**
-   * The top-level directory for the build output.
-   * Defaults to `/dist`.
-   */
-  outDir?: string;
-};
+/**
+ * @typedef {Object} ConfigObject
+ * @property {string} [pagesDir] The top-level directory containing pages. Defaults to `/pages`.
+ * @property {string} [publicDir] The top-level directory containing static assets to copy to the `outDir`. Defaults to `/public`.
+ * @property {string} [outDir] The top-level directory for the build output. Defaults to `/dist`.
+ */
+/** @typedef {Required<ConfigObject>} Config */
 
-export type Config = Required<ConfigObject>;
-
+/**
+ * @returns {Promise<Required<ConfigObject>>}
+ */
 async function getConfig() {
   const { default: configObject } = await import(`${cwd()}/brut.config.js`);
-  const config: Config = {
+  const config = {
     pagesDir: configObject.pagesDir
       ? `${cwd()}${configObject.pagesDir}`
       : `${cwd()}/pages`,
@@ -41,6 +32,9 @@ async function getConfig() {
   return config;
 }
 
+/**
+ * @returns {Promise<void>}
+ */
 async function init() {
   console.time("Total build time");
   const config = await getConfig();

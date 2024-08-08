@@ -1,6 +1,2 @@
-# deps
-node_modules
 # built site
 dist
-# build scripts
-scripts/*.js

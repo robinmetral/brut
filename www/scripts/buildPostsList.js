@@ -4,24 +4,41 @@ import { load } from "js-yaml";
 
 const POSTS_DIR = `${cwd()}/pages/posts`;
 
-type Frontmatter = { [key: string]: string };
+/**
+ * @typedef {Object.<string, string>} Frontmatter
+ */
 
-function getFrontmatter(file: string): Frontmatter {
+/**
+ * Extracts frontmatter from string using js-yaml
+ *
+ * @param {string} file
+ * @returns {Frontmatter}
+ */
+function getFrontmatter(file) {
   const match =
     /^---(?:\r?\n|\r)(?:([\s\S]*?)(?:\r?\n|\r))?---(?:\r?\n|\r|$)/.exec(file);
 
   if (match) {
-    return load(match[1]) as Frontmatter;
+    const frontmatter = /** @type {Frontmatter} */ (load(match[1]));
+    return frontmatter;
   } else {
     return {};
   }
 }
 
-type Post = { title: string; date: string; slug: string };
+/**
+ * @typedef {Object} Post
+ * @property {string} title
+ * @property {string} date
+ * @property {string} slug
+ */
 
-async function getPosts(): Promise<Post[]> {
+/**
+ * @returns {Promise<Post[]>}
+ */
+async function getPosts() {
   const files = await readdir(POSTS_DIR);
-  const posts: Post[] = await Promise.all(
+  const posts /** @type {Post[]} */ = await Promise.all(
     files.map(async (file) => {
       const content = await readFile(`${POSTS_DIR}/${file}`, "utf-8");
       const frontmatter = getFrontmatter(content);
@@ -35,7 +52,12 @@ async function getPosts(): Promise<Post[]> {
   return posts;
 }
 
-export async function buildPage(html: string): Promise<string> {
+/**
+ *
+ * @param {string} html
+ * @returns {Promise<string>}
+ */
+export async function buildPage(html) {
   try {
     const posts = await getPosts();
     const postsHtml = posts
