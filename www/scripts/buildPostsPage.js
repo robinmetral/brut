@@ -66,7 +66,7 @@ export async function buildPage(html) {
           `<li><a href="${post.slug}">${post.date}: ${post.title}</a></li>`
       )
       .join("");
-    return html.replace("<li>Posts go here</li>", postsHtml);
+    return html.replace("<li>--POSTS--</li>", postsHtml);
   } catch (error) {
     throw new Error(`Failed to build page: ${error}`);
   }

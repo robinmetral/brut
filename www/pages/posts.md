@@ -1,8 +1,8 @@
 ---
 template: /templates/default.html
-buildScript: /scripts/buildPostsList.js
+buildScript: /scripts/buildPostsPage.js
 ---
 
 # Blog
 
-- Posts go here
+- --POSTS--
