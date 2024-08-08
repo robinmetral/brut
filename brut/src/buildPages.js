@@ -165,8 +165,13 @@ export default async function buildPages({ outDir: outDirRoot, pagesDir }) {
           // 4. build page and write to fs
           const relPath = outDir.replace(outDirRoot, "");
           const result = await buildPage(html, frontmatter, relPath);
-          await ensureDir(outDir);
-          await writeFile(`${outDir}/index.html`, result);
+          // TEMP: handle 404 pages for Cloudflare Pages
+          if (outDir === `${outDirRoot}/404`) {
+            await writeFile(`${outDir}.html`, result);
+          } else {
+            await ensureDir(outDir);
+            await writeFile(`${outDir}/index.html`, result);
+          }
         }
       })
     );
