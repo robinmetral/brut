@@ -1,5 +1,5 @@
 ---
-template: /templates/default.html
+template: default
 buildScript: /scripts/buildPostsPage.js
 ---
 
