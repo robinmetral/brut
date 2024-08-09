@@ -1,7 +1,7 @@
 /** @typedef {import('.').Config} Config */
 
 import fs from "fs-extra";
-import { resolve } from "path";
+import { resolve, basename, extname } from "path";
 import { cwd } from "process";
 import { load } from "js-yaml";
 import { unified } from "unified";
@@ -14,7 +14,7 @@ import { minify as minifier } from "html-minifier-terser";
 
 const { writeFile, readFile, readdir, ensureDir } = fs;
 
-/** @typedef {Object<string, string>} Frontmatter */
+/** @typedef {{[x: string]: string}} Frontmatter */
 
 /**
  * Extracts frontmatter with `---` or `<!-- -->` delimiters from a string.
@@ -92,60 +92,20 @@ async function minify(html) {
 }
 
 /**
- * Reads files in the given partials dir and returns their contents as a
- * key-value object: `{ [slug]: contents }`
- * @param {string} partialsDir
- * @returns {Promise<Object.<string, string>>}
- */
-async function loadPartials(partialsDir) {
-  try {
-    const partialsFiles = await readdir(partialsDir);
-    if (partialsFiles.length < 1) {
-      // empty partials dir
-      return null;
-    }
-    let partials = /** @type {Object.<string, string>} */ ({});
-    await Promise.all(
-      partialsFiles.map(async (partialFile) => {
-        const partialSlug = partialFile.split(".")[0]; // strip the extension
-        const partial = await readFile(`${partialsDir}/${partialFile}`, "utf8");
-        partials[partialSlug] = partial;
-      })
-    );
-    console.log(partials);
-    return partials;
-  } catch (error) {
-    // no partials dir
-    return null;
-  }
-}
-
-/**
  * Get the page's build script and run it on the html.
  * @param {string} content html content
  * @param {Frontmatter} frontmatter
  * @param {string} path page slug (for `/posts/first.html`, this would be `/posts/first/`)
- * @param {string} templatesDir config path to the templates directory
- * @param {string} partialsDir config path to the partials directory
+ * @param {{[x: string]: string}} templates key-value representation of all templates
+ * @param {{[x: string]: string}} partials key-value representation of all partials
  * @returns {Promise<string>}
  */
-async function buildPage(
-  content,
-  frontmatter,
-  path,
-  templatesDir,
-  partialsDir
-) {
+async function buildPage(content, frontmatter, path, templates, partials) {
   // 1. inject into the template
   const hasTemplate = !!frontmatter.template;
   if (hasTemplate) {
-    const template = await readFile(
-      `${templatesDir}/${frontmatter.template}`,
-      "utf8"
-    );
-    const partials = await loadPartials(partialsDir);
     content = mustache.render(
-      template,
+      templates[frontmatter.template],
       frontmatter, // variables a.k.a. view
       { content, ...partials } // partials
     );
@@ -177,6 +137,52 @@ async function getFiles(dir) {
 }
 
 /**
+ * Loads templates from the filesystem and returns them as a key-value object
+ * such as `{ default: "template-source" }`
+ * @param {string} templatesDir
+ * @returns {Promise<{[x: string]: string}>}
+}
+ */
+async function loadTemplates(templatesDir) {
+  const templatePaths = await getFiles(templatesDir);
+  const templates = /** @type {{[x: string]: string}} */ ({});
+  await Promise.all(
+    templatePaths.map(async (templatePath) => {
+      const templateName = basename(templatePath).replace(
+        extname(templatePath),
+        ""
+      );
+      const templateSource = await readFile(templatePath, "utf-8");
+      templates[templateName] = templateSource;
+    })
+  );
+  return templates;
+}
+
+/**
+ * Loads partials from the filesystem and returns them as a key-value object
+ * such as `{ nav: "partial-source" }`
+ * @param {string} partialsDir
+ * @returns {Promise<{[x: string]: string}>}
+}
+ */
+async function loadPartials(partialsDir) {
+  const partialPaths = await getFiles(partialsDir);
+  const partials = /** @type {{[x: string]: string}} */ ({});
+  await Promise.all(
+    partialPaths.map(async (partialPath) => {
+      const partialName = basename(partialPath).replace(
+        extname(partialPath),
+        ""
+      );
+      const partialSource = await readFile(partialPath, "utf-8");
+      partials[partialName] = partialSource;
+    })
+  );
+  return partials;
+}
+
+/**
  * @param {Config} config
  * @returns {Promise<void>}
  */
@@ -188,6 +194,11 @@ export default async function buildPages({
 }) {
   try {
     const paths = await getFiles(pagesDir);
+    const [templates, partials] = await Promise.all([
+      loadTemplates(templatesDir),
+      loadPartials(partialsDir),
+    ]);
+
     await Promise.all(
       paths.map(async (path) => {
         // only process markdown or html pages
@@ -215,8 +226,8 @@ export default async function buildPages({
             html,
             frontmatter,
             relPath,
-            templatesDir,
-            partialsDir
+            templates,
+            partials
           );
           // TEMP: handle 404 pages for Cloudflare Pages
           if (outDir === `${outDirRoot}/404`) {
