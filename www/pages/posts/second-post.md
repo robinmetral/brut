@@ -1,5 +1,5 @@
 ---
-template: /templates/default.html
+template: default.html
 title: "Second Post"
 date: "2022-02-12"
 ---
