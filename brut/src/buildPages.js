@@ -92,21 +92,62 @@ async function minify(html) {
 }
 
 /**
+ * Reads files in the given partials dir and returns their contents as a
+ * key-value object: `{ [slug]: contents }`
+ * @param {string} partialsDir
+ * @returns {Promise<Object.<string, string>>}
+ */
+async function loadPartials(partialsDir) {
+  try {
+    const partialsFiles = await readdir(partialsDir);
+    if (partialsFiles.length < 1) {
+      // empty partials dir
+      return null;
+    }
+    let partials = /** @type {Object.<string, string>} */ ({});
+    await Promise.all(
+      partialsFiles.map(async (partialFile) => {
+        const partialSlug = partialFile.split(".")[0]; // strip the extension
+        const partial = await readFile(`${partialsDir}/${partialFile}`, "utf8");
+        partials[partialSlug] = partial;
+      })
+    );
+    console.log(partials);
+    return partials;
+  } catch (error) {
+    // no partials dir
+    return null;
+  }
+}
+
+/**
  * Get the page's build script and run it on the html.
- * @param {string} content
+ * @param {string} content html content
  * @param {Frontmatter} frontmatter
- * @param {string} path
+ * @param {string} path page slug (for `/posts/first.html`, this would be `/posts/first/`)
+ * @param {string} templatesDir config path to the templates directory
+ * @param {string} partialsDir config path to the partials directory
  * @returns {Promise<string>}
  */
-async function buildPage(content, frontmatter, path) {
+async function buildPage(
+  content,
+  frontmatter,
+  path,
+  templatesDir,
+  partialsDir
+) {
   // 1. inject into the template
   const hasTemplate = !!frontmatter.template;
   if (hasTemplate) {
-    const template = await readFile(cwd() + frontmatter.template, "utf-8");
+    const template = await readFile(
+      `${templatesDir}/${frontmatter.template}`,
+      "utf8"
+    );
+    const partials = await loadPartials(partialsDir);
     content = mustache.render(
       template,
-      frontmatter, // variables
-      { content } // partials
+      frontmatter, // variables a.k.a. view
+      { content, ...partials } // partials
     );
   }
   // 2. run build script
@@ -138,7 +179,12 @@ async function getFiles(dir) {
  * @param {Config} config
  * @returns {Promise<void>}
  */
-export default async function buildPages({ outDir: outDirRoot, pagesDir }) {
+export default async function buildPages({
+  outDir: outDirRoot,
+  pagesDir,
+  templatesDir,
+  partialsDir,
+}) {
   try {
     const paths = await getFiles(pagesDir);
     await Promise.all(
@@ -164,7 +210,13 @@ export default async function buildPages({ outDir: outDirRoot, pagesDir }) {
           }
           // 4. build page and write to fs
           const relPath = outDir.replace(outDirRoot, "");
-          const result = await buildPage(html, frontmatter, relPath);
+          const result = await buildPage(
+            html,
+            frontmatter,
+            relPath,
+            templatesDir,
+            partialsDir
+          );
           // TEMP: handle 404 pages for Cloudflare Pages
           if (outDir === `${outDirRoot}/404`) {
             await writeFile(`${outDir}.html`, result);
