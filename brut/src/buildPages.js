@@ -161,6 +161,7 @@ async function buildPage(
 }
 
 /**
+ * Recursively list files in a directory
  * @param {string} dir
  * @returns {Promise<string[]>}
  */
