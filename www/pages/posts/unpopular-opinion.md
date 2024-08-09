@@ -1,5 +1,5 @@
 ---
-template: default.html
+template: default
 title: "Unpopular Opinion"
 date: "2021-11-12"
 ---
