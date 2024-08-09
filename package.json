@@ -12,5 +12,11 @@
   "scripts": {
     "test": "npm -w www run test",
     "release": "npm -w brut publish"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/html-minifier-terser": "^7.0.2",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mustache": "^4.2.5"
   }
 }
