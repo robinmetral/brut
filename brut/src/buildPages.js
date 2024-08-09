@@ -126,14 +126,18 @@ async function buildPage(content, frontmatter, path, templates, partials) {
  * @returns {Promise<string[]>}
  */
 async function getFiles(dir) {
-  const dirents = await readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    dirents.map((dirent) => {
-      const res = resolve(dir, dirent.name);
-      return dirent.isDirectory() ? getFiles(res) : res;
-    })
-  );
-  return files.flat();
+  try {
+    const dirents = await readdir(dir, { withFileTypes: true });
+    const files = await Promise.all(
+      dirents.map((dirent) => {
+        const res = resolve(dir, dirent.name);
+        return dirent.isDirectory() ? getFiles(res) : res;
+      })
+    );
+    return files.flat();
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -145,6 +149,10 @@ async function getFiles(dir) {
  */
 async function loadTemplates(templatesDir) {
   const templatePaths = await getFiles(templatesDir);
+  if (!templatePaths) {
+    console.log("No templates found.");
+    return null;
+  }
   const templates = /** @type {{[x: string]: string}} */ ({});
   await Promise.all(
     templatePaths.map(async (templatePath) => {
@@ -156,6 +164,7 @@ async function loadTemplates(templatesDir) {
       templates[templateName] = templateSource;
     })
   );
+  console.log(`Loaded ${templatePaths.length} templates.`);
   return templates;
 }
 
@@ -168,6 +177,10 @@ async function loadTemplates(templatesDir) {
  */
 async function loadPartials(partialsDir) {
   const partialPaths = await getFiles(partialsDir);
+  if (!partialPaths) {
+    console.log("No partials found.");
+    return null;
+  }
   const partials = /** @type {{[x: string]: string}} */ ({});
   await Promise.all(
     partialPaths.map(async (partialPath) => {
@@ -179,6 +192,7 @@ async function loadPartials(partialsDir) {
       partials[partialName] = partialSource;
     })
   );
+  console.log(`Loaded ${partialPaths.length} partials.`);
   return partials;
 }
 
