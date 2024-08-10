@@ -12,6 +12,7 @@ const { emptyDir } = fs;
  * @property {string} [partialsDir] The top-level directory containing partials. Defaults to `/partials`.
  * @property {string} [publicDir] The top-level directory containing static assets to copy to the `outDir`. Defaults to `/public`.
  * @property {string} [outDir] The top-level directory for the build output. Defaults to `/dist`.
+ * @property {string[]} [collections] Array of collections. Collection directories must be direct children of the `pagesDir`. Example: `["posts"]`.
  * @property {function} [processContext] A function that receives a context object for processing before it's handed over to mustache
  */
 /** @typedef {Required<ConfigObject>} Config */
@@ -40,6 +41,7 @@ async function getConfig() {
     processContext: configObject.processContext
       ? configObject.processContext
       : (context) => context,
+    collections: configObject.collections || [],
   });
   return config;
 }

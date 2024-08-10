@@ -1,7 +1,7 @@
 ---
 template: default
 title: "Second Post"
-date: "2022-02-12"
+published_date: "2022-02-12"
 ---
 
 # Second Post

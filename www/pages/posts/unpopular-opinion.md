@@ -1,7 +1,7 @@
 ---
 template: default
 title: "Unpopular Opinion"
-date: "2021-11-12"
+published_date: "2021-11-12"
 ---
 
 # Unpopular Opinion

@@ -232,23 +232,21 @@ function getSlug(path, pagesDir) {
 
 /** @typedef {{ path: string; slug: string; frontmatter: Frontmatter; content: string; }} Page */
 /**
- * Builds the context object from all pages from the filesystem
+ * Loads pages from the filesystem and returns their content and metadata
  * @param {string} pagesDir
- * @returns {Promise<{pages: Page[]}>}
+ * @returns {Promise<Page[]>}
 }
  */
-async function buildContext(pagesDir) {
-  const context = {
-    /** @type {Page[]} */ pages: [],
-  };
+async function loadPages(pagesDir) {
   const paths = await getFiles(pagesDir);
+  const pages = /** @type {Page[]} */ ([]);
   await Promise.all(
     paths.map(async (path) => {
       // only process markdown or html pages
       if (path.endsWith(".md") || path.endsWith(".html")) {
         const file = await readFile(path, "utf-8");
         const { frontmatter, content } = extractFrontmatter(file);
-        context.pages.push({
+        pages.push({
           path,
           slug: getSlug(path, pagesDir),
           frontmatter,
@@ -257,7 +255,37 @@ async function buildContext(pagesDir) {
       }
     })
   );
-  console.log(`Building ${context.pages.length} pages.`);
+  console.log(`Building ${pages.length} pages.`);
+  return pages;
+}
+
+/**
+ * Build context from a raw array of pages
+ * @param {Page[]} pages
+ * @param {string[]} collections
+ * @param {string} pagesDir
+ * @return {{[x: string]: Page[]}} context
+ */
+function buildContext(pages, collections, pagesDir) {
+  const context = pages.reduce((acc, cur) => {
+    // add only pages that are in a collection to context
+    // pubilshed_date is a proxy to determine whether a page is in a collection
+    if (cur.frontmatter.published_date) {
+      // get the collection from the path
+      const collection = collections.find((collection) =>
+        cur.path.includes(`${pagesDir}/${collection}`) ? collection : null
+      );
+      if (collection) {
+        if (!acc[collection]) {
+          acc[collection] = [];
+        }
+        acc[collection].push(cur);
+        return acc;
+      }
+    }
+    // doesn't meet conditions, we return the previous acc
+    return acc;
+  }, {});
   return context;
 }
 
@@ -270,18 +298,20 @@ export default async function buildPages({
   pagesDir,
   templatesDir,
   partialsDir,
+  collections,
   processContext,
 }) {
   try {
-    const [originalContext, templates, partials] = await Promise.all([
-      buildContext(pagesDir),
+    const [pages, templates, partials] = await Promise.all([
+      loadPages(pagesDir),
       loadTemplates(templatesDir),
       loadPartials(partialsDir),
     ]);
-    const context = processContext(originalContext);
+    const context = buildContext(pages, collections, pagesDir);
+    const processedContext = processContext(context);
 
     await Promise.all(
-      context.pages.map(async (page) => {
+      pages.map(async (page) => {
         const { path, content } = page;
         // 1. parse markdown into HTML
         let html = content;
@@ -294,7 +324,7 @@ export default async function buildPages({
             ...page,
             content: html, // overwrite previous markdown content with built html
           },
-          context,
+          context: processedContext,
           templates,
           partials,
         });

@@ -6,7 +6,9 @@ template: default
 {{#context.posts.length}}
 <ul>
   {{#context.posts}}
-  <li>{{frontmatter.date}}: <a href="{{slug}}">{{frontmatter.title}}</a></li>
+  <li>
+    {{frontmatter.published_date}}: <a href="{{slug}}">{{frontmatter.title}}</a>
+  </li>
   {{/context.posts}}
 </ul>
 {{/context.posts.length}}

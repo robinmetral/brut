@@ -1,21 +1,16 @@
 export default {
   pagesDir: "/pages",
+  collections: ["posts"],
   processContext: (context) => {
-    const posts = [];
-    const newPages = context.pages.map((page) => {
-      // make dates human-readable
-      if (page.frontmatter.date) {
-        page.frontmatter.date = new Date(
-          page.frontmatter.date
-        ).toLocaleDateString();
-      }
-      // put all posts in a list to loop through using mustache sections
-      if (page.path.includes("/posts/")) {
-        posts.push(page);
-      }
-      return page;
+    // make dates human-readable
+    // this could be any other kind of data preprocessing
+    // it can also be done in a separate file
+    const posts = context.posts.map((post) => {
+      post.frontmatter.published_date = new Date(
+        post.frontmatter.published_date
+      ).toLocaleDateString();
+      return post;
     });
-    context.pages = newPages;
     context.posts = posts;
     return context;
   },
