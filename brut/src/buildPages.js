@@ -270,13 +270,15 @@ export default async function buildPages({
   pagesDir,
   templatesDir,
   partialsDir,
+  processContext,
 }) {
   try {
-    const [context, templates, partials] = await Promise.all([
+    const [originalContext, templates, partials] = await Promise.all([
       buildContext(pagesDir),
       loadTemplates(templatesDir),
       loadPartials(partialsDir),
     ]);
+    const context = processContext(originalContext);
 
     await Promise.all(
       context.pages.map(async (page) => {
