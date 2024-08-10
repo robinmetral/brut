@@ -101,12 +101,8 @@ async function minify(html) {
  * }} arguments
  * @returns {Promise<string>}
  */
-async function buildPage({
-  page: { frontmatter, content, slug },
-  context,
-  templates,
-  partials,
-}) {
+async function buildPage({ page, context, templates, partials }) {
+  let { frontmatter, content, slug } = page;
   // TODO: make this easier to follow by avoiding mutating `content`
   // 1. inject into the template
   // TODO: pass context to mustache
@@ -114,7 +110,7 @@ async function buildPage({
   if (hasTemplate) {
     content = mustache.render(
       templates[frontmatter.template],
-      frontmatter, // variables a.k.a. view
+      { page, context }, // variables a.k.a. view
       { content, ...partials } // partials
     );
   }
