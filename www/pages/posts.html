@@ -1,0 +1,14 @@
+<!--
+template: default
+-->
+
+<h1>Posts</h1>
+{{#context.posts.length}}
+<ul>
+  {{#context.posts}}
+  <li>
+    {{frontmatter.published_date}}: <a href="{{slug}}">{{frontmatter.title}}</a>
+  </li>
+  {{/context.posts}}
+</ul>
+{{/context.posts.length}}

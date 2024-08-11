@@ -12,6 +12,8 @@ const { emptyDir } = fs;
  * @property {string} [partialsDir] The top-level directory containing partials. Defaults to `/partials`.
  * @property {string} [publicDir] The top-level directory containing static assets to copy to the `outDir`. Defaults to `/public`.
  * @property {string} [outDir] The top-level directory for the build output. Defaults to `/dist`.
+ * @property {string[]} [collections] Array of collections. Collection directories must be direct children of the `pagesDir`. Example: `["posts"]`.
+ * @property {function} [processContext] A function that receives a context object for processing before it's handed over to mustache
  */
 /** @typedef {Required<ConfigObject>} Config */
 
@@ -20,7 +22,7 @@ const { emptyDir } = fs;
  */
 async function getConfig() {
   const { default: configObject } = await import(`${cwd()}/brut.config.js`);
-  const config = {
+  const config = /** @type {Config} */ ({
     pagesDir: configObject.pagesDir
       ? `${cwd()}${configObject.pagesDir}`
       : `${cwd()}/pages`,
@@ -36,7 +38,11 @@ async function getConfig() {
     outDir: configObject.outDir
       ? `${cwd()}${configObject.outDir}`
       : `${cwd()}/dist`,
-  };
+    processContext: configObject.processContext
+      ? configObject.processContext
+      : (context) => context,
+    collections: configObject.collections || [],
+  });
   return config;
 }
 

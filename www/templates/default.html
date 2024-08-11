@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{#title}}{{title}} | {{/title}}Brut</title>
+    <title>
+      {{#page.frontmatter.title}}{{.}} | {{/page.frontmatter.title}}Brut
+    </title>
     <link rel="stylesheet" href="/global.css" type="text/css" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />

@@ -10,8 +10,8 @@ test("should render", async ({ page }) => {
 });
 
 test("should navigate to other pages", async ({ page }) => {
-  await page.click("text=Blog");
-  await expect(page.locator("h1").first()).toHaveText("Blog");
+  await page.click("text=Posts");
+  await expect(page.locator("h1").first()).toHaveText("Posts");
   await page.click("text=Unpopular Opinion");
   await expect(page).toHaveTitle(/Unpopular Opinion/);
 });
