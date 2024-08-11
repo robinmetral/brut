@@ -267,23 +267,30 @@ async function loadPages(pagesDir) {
  * @return {{[x: string]: Page[]}} context
  */
 function buildContext(pages, collections, pagesDir) {
-  const context = pages.reduce((acc, cur) => {
-    // add only pages that are in a collection to context
-    // pubilshed_date is a proxy to determine whether a page is in a collection
-    if (cur.frontmatter.published_date) {
-      // get the collection from the path
-      const collection = collections.find((collection) =>
-        cur.path.includes(`${pagesDir}/${collection}`) ? collection : null
-      );
-      if (collection) {
-        if (!acc[collection]) {
-          acc[collection] = [];
-        }
-        acc[collection].push(cur);
-        return acc;
+  // 1. sort pages by descending published_date by default (newest posts first in the array)
+  //    if a page is missing a published_date, it is filtered out (pages in collections must have a published_date)
+  const sortedPages = pages
+    .filter((page) => !!page.frontmatter.published_date)
+    .sort(
+      (a, b) =>
+        new Date(b.frontmatter.published_date).getTime() -
+        new Date(a.frontmatter.published_date).getTime()
+    );
+  // 2. reduce pages into collection arrays under a context object
+  const context = sortedPages.reduce((acc, cur) => {
+    // attempt to get the collection from the page path
+    // note: a collection can't be a descendant of another collection, e.g. `posts` and `posts/recipes` (open an issue if you'd like this implemented!)
+    const collection = collections.find((collection) =>
+      cur.path.includes(`${pagesDir}/${collection}`) ? collection : null
+    );
+    if (collection) {
+      if (!acc[collection]) {
+        acc[collection] = [];
       }
+      acc[collection].push(cur);
+      return acc;
     }
-    // doesn't meet conditions, we return the previous acc
+    // page is not in a collection, we omit it from the acc
     return acc;
   }, {});
   return context;
