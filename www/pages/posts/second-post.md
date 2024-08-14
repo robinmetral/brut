@@ -4,8 +4,6 @@ published_date: "2022-02-12"
 template: default
 ---
 
-# Second Post
-
 This post is written in Markdown but contains embedded HTML[^1]:
 
 <ul>
