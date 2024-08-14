@@ -4,6 +4,7 @@ description: A brutalist static site generator
 base_url: https://brut.pages.dev
 author: Robin
 lang: en
+permalink: /feed.xml
 -->
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">

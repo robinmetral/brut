@@ -1,7 +1,7 @@
 /** @typedef {import('.').Config} Config */
 
 import fs from "fs-extra";
-import { resolve, basename, extname } from "path";
+import { resolve, basename, extname, dirname } from "path";
 import { cwd } from "process";
 import { load } from "js-yaml";
 import { unified } from "unified";
@@ -216,7 +216,7 @@ async function loadPartials(partialsDir) {
 }
 
 /**
- * Returns a slug from a given file path
+ * Returns a slug from a given file path. Should always have a trailing slash.
  * @param {string} path The full filesystem file path
  * @param {string} pagesDir The config pages directory, to strip from slugs
  * @returns {string}
@@ -239,7 +239,7 @@ function getSlug(path, pagesDir) {
   } else {
     // index: (n/a)
     // post: /posts/my-post/
-    slug = slug.replace(".md", "/").replace(".html", "/");
+    slug = slug.replace(extname(slug), "/");
   }
   return slug;
 }
@@ -256,13 +256,18 @@ async function loadPages(pagesDir) {
   const pages = /** @type {Page[]} */ ([]);
   await Promise.all(
     paths.map(async (path) => {
-      // only process markdown or html pages
-      if (path.endsWith(".md") || path.endsWith(".html")) {
+      // only process markdown or html pages... or xml
+      const extension = extname(path);
+      if (
+        extension === ".md" ||
+        extension === ".html" ||
+        extension === ".xml" // for feeds
+      ) {
         const file = await readFile(path, "utf-8");
         const { frontmatter, content } = extractFrontmatter(file);
         pages.push({
           path,
-          slug: getSlug(path, pagesDir),
+          slug: frontmatter.permalink || getSlug(path, pagesDir),
           frontmatter,
           content,
         });
@@ -359,13 +364,15 @@ export default async function buildPages({
           partials,
         });
         // 2. write to fs
-        // TEMP: fix 404 pages for Cloudflare Pages, see https://github.com/robinmetral/brut/issues/20
-        if (page.slug === `/404/`) {
-          await writeFile(`${outDir}/404.html`, result);
+        if (!page.slug.endsWith("/")) {
+          // if there's no trailing slash to the slug, the page shouldn't be saved under `${slug}index.html`
+          const parentDir = `${outDir}${dirname(page.slug)}`;
+          await mkdir(parentDir, { recursive: true });
+          await writeFile(`${outDir}${page.slug}`, result);
         } else {
           const parentDir = `${outDir}${page.slug}`;
           await mkdir(parentDir, { recursive: true });
-          await writeFile(`${parentDir}/index.html`, result);
+          await writeFile(`${parentDir}index.html`, result);
         }
       })
     );
