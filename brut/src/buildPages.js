@@ -105,7 +105,6 @@ async function buildPage({ page, context, templates, partials }) {
   let { frontmatter, content, slug } = page;
   // TODO: make this easier to follow by avoiding mutating `content`
   // 1. inject into the template
-  // TODO: pass context to mustache
   const hasTemplate = !!frontmatter.template;
   if (hasTemplate) {
     content = mustache.render(
