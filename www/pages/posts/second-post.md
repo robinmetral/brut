@@ -22,4 +22,6 @@ This post is written in Markdown but contains embedded HTML[^1]:
 - Markdown
 - List
 
+It also has a [relative link to another post](/posts/unpopular-opinion/).
+
 [^1]: ...and footnotes!

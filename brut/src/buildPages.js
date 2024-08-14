@@ -10,7 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
-import { minify as minifier } from "html-minifier-terser";
+import { minify } from "html-minifier-terser";
 
 const { writeFile, readFile, readdir, mkdir } = fs;
 
@@ -75,19 +75,26 @@ function processMarkdown(file) {
 }
 
 /**
- * Minify an HTML string using html-minifier-terser.
+ * Removes whitespace from an HTML string using html-minifier-terser (and,
+ * under the hood, terser for inline JS and clean-css for inline CSS).
+ *
+ * This isnt's minifying further because I want the build to resemble the
+ * source (brut!). I want to be able to read, edit, debug code in the browser.
+ * The build is slightly less optimized than it could be, yes. Don't worry
+ * about it and go compress your images and gzip your files.
+ *
+ * TODO: how many more bytes are stripped when minifying more aggressively?
+ * TODO: how much time does this add to the build? Should it be kept?
+ *
  * @param {string} html
  * @returns {Promise<string>}
  */
-async function minify(html) {
-  return minifier(html, {
+async function removeWhitespace(html) {
+  return minify(html, {
     collapseWhitespace: true,
-    removeComments: true,
-    collapseBooleanAttributes: true,
-    useShortDoctype: true,
-    removeEmptyAttributes: true,
-    removeOptionalTags: true,
-    minifyJS: true,
+    keepClosingSlash: true, // html-minifier-terser's only on-by-default option?
+    minifyCSS: { level: 0 }, // clean-css options. This strips whitespaces but doesn't change anything else
+    minifyJS: { mangle: false, compress: false }, // terser options. This strips whitespaces and formats JS using terser defaults (minor changes)
   });
 }
 
@@ -103,14 +110,22 @@ async function minify(html) {
  */
 async function buildPage({ page, context, templates, partials }) {
   let { frontmatter, content, slug } = page;
-  // TODO: make this easier to follow by avoiding mutating `content`
+  let html = "";
   // 1. inject into the template
   const hasTemplate = !!frontmatter.template;
   if (hasTemplate) {
-    content = mustache.render(
+    html = mustache.render(
       templates[frontmatter.template],
       { page, context }, // variables a.k.a. view
       { content, ...partials } // partials
+    );
+  }
+  // if there is no template, the content itself is the template
+  else {
+    html = mustache.render(
+      content,
+      { page, context }, // variables a.k.a. view
+      partials // partials
     );
   }
   // 2. run build script
@@ -118,10 +133,10 @@ async function buildPage({ page, context, templates, partials }) {
   const hasScript = !!frontmatter.buildScript;
   if (hasScript) {
     const script = await import(cwd() + frontmatter.buildScript);
-    content = await script.buildPage(content, frontmatter, slug);
+    html = await script.buildPage(html, frontmatter, slug);
   }
   // 3. minify and return
-  return minify(content);
+  return removeWhitespace(html);
 }
 
 /**
@@ -254,7 +269,6 @@ async function loadPages(pagesDir) {
       }
     })
   );
-  console.log(`Building ${pages.length} pages.`);
   return pages;
 }
 
@@ -308,33 +322,43 @@ export default async function buildPages({
   processContext,
 }) {
   try {
+    // run all filesystem ops in parallel
     const [pages, templates, partials] = await Promise.all([
       loadPages(pagesDir),
       loadTemplates(templatesDir),
       loadPartials(partialsDir),
     ]);
-    const context = buildContext(pages, collections, pagesDir);
-    const processedContext = processContext(context);
+    console.log(`Building ${pages.length} pages.`);
 
-    await Promise.all(
+    console.time("Converting Markdown to HTML");
+    // parse markdown and convert to HTML
+    const htmlPages = await Promise.all(
       pages.map(async (page) => {
         const { path, content } = page;
-        // 1. parse markdown into HTML
         let html = content;
         if (path.endsWith(".md")) {
           html = await processMarkdown(content);
         }
-        // 2. feed page, context, templates and partials to mustache
+        return { ...page, content: html };
+      })
+    );
+    console.timeEnd("Converting Markdown to HTML");
+
+    // build template context
+    const context = buildContext(htmlPages, collections, pagesDir);
+    const processedContext = processContext(context);
+
+    console.time("Building pages and writing to outDir");
+    await Promise.all(
+      htmlPages.map(async (page) => {
+        // 1. feed page, context, templates and partials to mustache
         const result = await buildPage({
-          page: {
-            ...page,
-            content: html, // overwrite previous markdown content with built html
-          },
+          page,
           context: processedContext,
           templates,
           partials,
         });
-        // 3. write to fs
+        // 2. write to fs
         // TEMP: fix 404 pages for Cloudflare Pages, see https://github.com/robinmetral/brut/issues/20
         if (page.slug === `/404/`) {
           await writeFile(`${outDir}/404.html`, result);
@@ -345,6 +369,7 @@ export default async function buildPages({
         }
       })
     );
+    console.timeEnd("Building pages and writing to outDir");
   } catch (error) {
     console.error(error);
   }

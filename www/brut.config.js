@@ -2,16 +2,17 @@ export default {
   pagesDir: "/pages",
   collections: ["posts"],
   processContext: (context) => {
-    // make dates human-readable
-    // this could be any other kind of data preprocessing
-    // it can also be done in a separate file
+    // process dates
     const posts = context.posts.map((post) => {
-      post.frontmatter.published_date = new Date(
-        post.frontmatter.published_date
-      ).toLocaleDateString();
+      const publishedDate = new Date(post.frontmatter.published_date);
+      post.frontmatter.published_date_string =
+        publishedDate.toLocaleDateString();
+      post.frontmatter.published_date_iso = publishedDate.toISOString(); // ~= RFC-3339 for Atom feed
       return post;
     });
     context.posts = posts;
+    // add <updated> date for Atom feed template
+    context.updated_date_iso = context.posts[0].frontmatter.published_date_iso;
     return context;
   },
 };
