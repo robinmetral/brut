@@ -14,6 +14,9 @@
   </head>
   <body>
     {{> nav}}
-    <main>{{> content}}</main>
+    <main>
+      <h1>{{page.frontmatter.title}}</h1>
+      {{> content}}
+    </main>
   </body>
 </html>

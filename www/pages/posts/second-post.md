@@ -1,7 +1,7 @@
 ---
-template: default
 title: "Second Post"
 published_date: "2022-02-12"
+template: default
 ---
 
 # Second Post
