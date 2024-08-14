@@ -1,7 +1,7 @@
 ---
-template: default
 title: "Production-ready"
 published_date: "2024-08-11"
+template: default
 ---
 
 Looking for a production-ready static site generator?

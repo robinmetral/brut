@@ -10,7 +10,9 @@ const { copy } = fs;
  */
 async function moveFiles({ publicDir, outDir }) {
   try {
+    console.time("Moving static files");
     await copy(publicDir, outDir);
+    console.timeEnd("Moving static files");
   } catch (error) {
     console.error(error);
   }
