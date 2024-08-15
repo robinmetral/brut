@@ -16,8 +16,8 @@
   ],
   "bin": "entry.sh",
   "dependencies": {
-    "fs-extra": "^10.0.0",
-    "html-minifier-terser": "^6.0.2",
+    "fs-extra": "^11.2.0",
+    "html-minifier-terser": "^7.2.0",
     "js-yaml": "^4.1.0",
     "mustache": "^4.2.0",
     "rehype-stringify": "^9.0.2",
