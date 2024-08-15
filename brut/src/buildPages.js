@@ -44,9 +44,11 @@ function extractFrontmatter(file) {
  * Parse the file into an AST, transform with unified plugins,
  * and convert back into html.
  * @param {string} file
+ * @param {import('unified').Plugin[]} remarkPlugins
+ * @param {import('unified').Plugin[]} rehypePlugins
  * @returns {Promise<string>}
  */
-function processMarkdown(file) {
+function processMarkdown(file, remarkPlugins, rehypePlugins) {
   return (
     unified()
       /**
@@ -61,6 +63,10 @@ function processMarkdown(file) {
        */
       .use(remarkGfm)
       /**
+       * Custom remark plugins, from brut.config.js
+       */
+      .use(remarkPlugins)
+      /**
        * `remark-rehype` transforms the mdast into hast.
        * https://github.com/remarkjs/remark-rehype
        */
@@ -70,6 +76,10 @@ function processMarkdown(file) {
        * https://github.com/rehypejs/rehype-slug
        */
       .use(rehypeSlug)
+      /**
+       * Custom rehype plugins, from brut.config.js
+       */
+      .use(rehypePlugins)
       /**
        * `rehype-stringify` transforms the hast into HTML.
        * https://github.com/rehypejs/rehype/tree/main/packages/rehype-stringify
@@ -331,6 +341,8 @@ export default async function buildPages({
   partialsDir,
   collections,
   processContext,
+  remarkPlugins,
+  rehypePlugins,
 }) {
   try {
     // run all filesystem ops in parallel
@@ -348,7 +360,7 @@ export default async function buildPages({
         const { path, content } = page;
         let html = content;
         if (path.endsWith(".md")) {
-          html = await processMarkdown(content);
+          html = await processMarkdown(content, remarkPlugins, rehypePlugins);
         }
         return { ...page, content: html };
       })

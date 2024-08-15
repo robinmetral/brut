@@ -14,6 +14,8 @@ const { emptyDir } = fs;
  * @property {string} [outDir] The top-level directory for the build output. Defaults to `/dist`.
  * @property {string[]} [collections] Array of collections. Collection directories must be direct children of the `pagesDir`. Example: `["posts"]`.
  * @property {function} [processContext] A function that receives a context object for processing before it's handed over to mustache
+ * @property {import('unified').Plugin[]} [remarkPlugins] An array of remark plugins
+ * @property {import('unified').Plugin[]} [rehypePlugins] An array of rehype plugins
  */
 /** @typedef {Required<ConfigObject>} Config */
 
@@ -42,6 +44,8 @@ async function getConfig() {
       ? configObject.processContext
       : (context) => context,
     collections: configObject.collections || [],
+    remarkPlugins: configObject.remarkPlugins || [],
+    rehypePlugins: configObject.rehypePlugins || [],
   });
   return config;
 }
