@@ -1,9 +1,7 @@
-import fs from "fs-extra";
+import { mkdir, rm } from "fs/promises";
 import { cwd } from "process";
 import moveFiles from "./moveFiles";
 import buildPages from "./buildPages";
-
-const { emptyDir } = fs;
 
 /**
  * @typedef {Object} ConfigObject
@@ -14,6 +12,8 @@ const { emptyDir } = fs;
  * @property {string} [outDir] The top-level directory for the build output. Defaults to `/dist`.
  * @property {string[]} [collections] Array of collections. Collection directories must be direct children of the `pagesDir`. Example: `["posts"]`.
  * @property {function} [processContext] A function that receives a context object for processing before it's handed over to mustache
+ * @property {import('unified').Plugin[]} [remarkPlugins] An array of remark plugins
+ * @property {import('unified').Plugin[]} [rehypePlugins] An array of rehype plugins
  */
 /** @typedef {Required<ConfigObject>} Config */
 
@@ -42,6 +42,8 @@ async function getConfig() {
       ? configObject.processContext
       : (context) => context,
     collections: configObject.collections || [],
+    remarkPlugins: configObject.remarkPlugins || [],
+    rehypePlugins: configObject.rehypePlugins || [],
   });
   return config;
 }
@@ -52,7 +54,8 @@ async function getConfig() {
 async function init() {
   console.time("Total build time");
   const config = await getConfig();
-  await emptyDir(config.outDir);
+  await rm(config.outDir, { recursive: true, force: true }); // force ignores the exception when dist doesn't exist (e.g. in CI)
+  await mkdir(config.outDir);
   await Promise.all([moveFiles(config), buildPages(config)]);
   console.timeEnd("Total build time");
 }

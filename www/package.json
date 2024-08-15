@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "brut",
-    "start": "npm run build && serve -l 3000 --no-request-logging dist",
+    "start": "npm run build && NO_UPDATE_CHECK=1 serve -l 3000 --no-request-logging dist",
     "test": "start-server-and-test start http://localhost:3000 'npx playwright test --browser=all'"
   },
   "devDependencies": {
