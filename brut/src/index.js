@@ -1,9 +1,7 @@
-import fs from "fs-extra";
+import { mkdir, rm } from "fs/promises";
 import { cwd } from "process";
 import moveFiles from "./moveFiles";
 import buildPages from "./buildPages";
-
-const { emptyDir } = fs;
 
 /**
  * @typedef {Object} ConfigObject
@@ -56,7 +54,8 @@ async function getConfig() {
 async function init() {
   console.time("Total build time");
   const config = await getConfig();
-  await emptyDir(config.outDir);
+  await rm(config.outDir, { recursive: true });
+  await mkdir(config.outDir);
   await Promise.all([moveFiles(config), buildPages(config)]);
   console.timeEnd("Total build time");
 }

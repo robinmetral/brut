@@ -1,8 +1,6 @@
 /** @typedef {import('.').Config} Config */
 
-import fs from "fs-extra";
-
-const { copy } = fs;
+import { cp } from "fs/promises";
 
 /**
  * @param {Config} config
@@ -11,7 +9,7 @@ const { copy } = fs;
 async function moveFiles({ publicDir, outDir }) {
   try {
     console.time("Moving static files");
-    await copy(publicDir, outDir);
+    await cp(publicDir, outDir, { recursive: true });
     console.timeEnd("Moving static files");
   } catch (error) {
     console.error(error);

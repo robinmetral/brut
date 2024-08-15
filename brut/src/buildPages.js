@@ -1,6 +1,6 @@
 /** @typedef {import('.').Config} Config */
 
-import fs from "fs-extra";
+import { writeFile, readFile, readdir, mkdir } from "fs/promises";
 import { resolve, basename, extname, dirname } from "path";
 import { cwd } from "process";
 import { load } from "js-yaml";
@@ -12,8 +12,6 @@ import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
 import { minify } from "html-minifier-terser";
-
-const { writeFile, readFile, readdir, mkdir } = fs;
 
 /** @typedef {{[x: string]: string}} Frontmatter */
 

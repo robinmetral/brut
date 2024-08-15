@@ -16,7 +16,6 @@
   ],
   "bin": "entry.sh",
   "dependencies": {
-    "fs-extra": "^11.2.0",
     "html-minifier-terser": "^7.2.0",
     "js-yaml": "^4.1.0",
     "mustache": "^4.2.0",
@@ -26,6 +25,12 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/html-minifier-terser": "^7.0.2",
+    "@types/js-yaml": "^4.0.9",
+    "@types/mustache": "^4.2.5",
+    "@types/node": "^22.3.0"
   },
   "engines": {
     "node": ">=18.0.0",
