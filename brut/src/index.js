@@ -54,7 +54,7 @@ async function getConfig() {
 async function init() {
   console.time("Total build time");
   const config = await getConfig();
-  await rm(config.outDir, { recursive: true });
+  await rm(config.outDir, { recursive: true, force: true }); // force ignores the exception when dist doesn't exist (e.g. in CI)
   await mkdir(config.outDir);
   await Promise.all([moveFiles(config), buildPages(config)]);
   console.timeEnd("Total build time");
