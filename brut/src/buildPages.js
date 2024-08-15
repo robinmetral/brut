@@ -8,6 +8,7 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
+import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
 import { minify } from "html-minifier-terser";
@@ -64,6 +65,11 @@ function processMarkdown(file) {
        * https://github.com/remarkjs/remark-rehype
        */
       .use(remarkRehype, { allowDangerousHtml: true })
+      /**
+       * `rehype-slug` adds ids to HTML headings.
+       * https://github.com/rehypejs/rehype-slug
+       */
+      .use(rehypeSlug)
       /**
        * `rehype-stringify` transforms the hast into HTML.
        * https://github.com/rehypejs/rehype/tree/main/packages/rehype-stringify
