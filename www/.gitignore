@@ -1,2 +1,4 @@
 # built site
 dist
+# test output
+test-results
