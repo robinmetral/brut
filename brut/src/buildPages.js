@@ -1,8 +1,8 @@
 /** @typedef {import('.').Config} Config */
 
-import { writeFile, readFile, readdir, mkdir } from "fs/promises";
-import { resolve, basename, extname, dirname } from "path";
-import { cwd } from "process";
+import { writeFile, readFile, readdir, mkdir } from "node:fs/promises";
+import { resolve, basename, extname, dirname } from "node:path";
+import { cwd } from "node:process";
 import { load } from "js-yaml";
 import { unified } from "unified";
 import remarkParse from "remark-parse";

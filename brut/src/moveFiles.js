@@ -1,6 +1,6 @@
 /** @typedef {import('.').Config} Config */
 
-import { cp } from "fs/promises";
+import { cp } from "node:fs/promises";
 
 /**
  * @param {Config} config

@@ -3,7 +3,7 @@
   "private": true,
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/robinmetral/brut"
+    "url": "https://codeberg.org/robinmetral/brut"
   },
   "workspaces": [
     "brut",

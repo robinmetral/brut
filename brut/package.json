@@ -4,7 +4,7 @@
   "private": false,
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/robinmetral/brut"
+    "url": "https://codeberg.org/robinmetral/brut"
   },
   "author": {
     "name": "Robin Métral",
@@ -14,7 +14,7 @@
   "files": [
     "src"
   ],
-  "bin": "entry.sh",
+  "bin": "src/index.js",
   "dependencies": {
     "html-minifier-terser": "^7.2.0",
     "js-yaml": "^4.1.0",
@@ -33,7 +33,7 @@
     "@types/node": "^22.3.0"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "node": ">=18",
+    "npm": ">=9"
   }
 }

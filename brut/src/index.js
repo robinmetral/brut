@@ -1,7 +1,9 @@
-import { mkdir, rm } from "fs/promises";
-import { cwd } from "process";
-import moveFiles from "./moveFiles";
-import buildPages from "./buildPages";
+#!/usr/bin/env node
+
+import { mkdir, rm } from "node:fs/promises";
+import { cwd } from "node:process";
+import moveFiles from "./moveFiles.js";
+import buildPages from "./buildPages.js";
 
 /**
  * @typedef {Object} ConfigObject
