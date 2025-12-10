@@ -11,7 +11,6 @@ import remarkRehype from "remark-rehype";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import mustache from "mustache";
-import { minify } from "html-minifier-terser";
 
 /** @typedef {{[x: string]: string}} Frontmatter */
 
@@ -89,30 +88,6 @@ function processMarkdown(file, remarkPlugins, rehypePlugins) {
 }
 
 /**
- * Removes whitespace from an HTML string using html-minifier-terser (and,
- * under the hood, terser for inline JS and clean-css for inline CSS).
- *
- * This isnt's minifying further because I want the build to resemble the
- * source (brut!). I want to be able to read, edit, debug code in the browser.
- * The build is slightly less optimized than it could be, yes. Don't worry
- * about it and go compress your images and gzip your files.
- *
- * TODO: how many more bytes are stripped when minifying more aggressively?
- * TODO: how much time does this add to the build? Should it be kept?
- *
- * @param {string} html
- * @returns {Promise<string>}
- */
-async function removeWhitespace(html) {
-  return minify(html, {
-    collapseWhitespace: true,
-    keepClosingSlash: true, // html-minifier-terser's only on-by-default option?
-    minifyCSS: { level: 0 }, // clean-css options. This strips whitespaces but doesn't change anything else
-    minifyJS: { mangle: false, compress: false }, // terser options. This strips whitespaces and formats JS using terser defaults (minor changes)
-  });
-}
-
-/**
  * Get the page's build script and run it on the html.
  * @param {{
  *   page: Page;
@@ -149,8 +124,7 @@ async function buildPage({ page, context, templates, partials }) {
     const script = await import(cwd() + frontmatter.buildScript);
     html = await script.buildPage(html, frontmatter, slug);
   }
-  // 3. minify and return
-  return removeWhitespace(html);
+  return html;
 }
 
 /**
